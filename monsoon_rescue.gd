@@ -178,13 +178,14 @@ func _build_ui() -> void:
   var help := Label.new()
   help.text = "WASD / arrows: drive  |  Esc: pause  |  Reach survivors"
   stack.add_child(help)
-  var controls := HBoxContainer.new()
+  var controls := GridContainer.new()
+  controls.columns = 3
   controls.anchor_left = 0.0
   controls.anchor_top = 1.0
   controls.anchor_right = 1.0
   controls.anchor_bottom = 1.0
   controls.offset_left = 12
-  controls.offset_top = -78
+  controls.offset_top = -126
   controls.offset_right = -12
   controls.offset_bottom = -12
   layer.add_child(controls)
@@ -194,17 +195,19 @@ func _build_ui() -> void:
   _add_hold_button(controls, "TURN ", "right")
   var pause_button := Button.new()
   pause_button.text = "PAUSE / RESUME"
-  pause_button.custom_minimum_size = Vector2(140, 54)
+  pause_button.custom_minimum_size = Vector2(96, 50)
+  pause_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
   pause_button.pressed.connect(func():
     paused = not paused
     status_label.text = "PAUSED" if paused else "Rescue the villagers!"
   )
   controls.add_child(pause_button)
 
-func _add_hold_button(parent: HBoxContainer, caption: String, action: String) -> void:
+func _add_hold_button(parent: Container, caption: String, action: String) -> void:
   var b := Button.new()
   b.text = caption
-  b.custom_minimum_size = Vector2(100, 54)
+  b.custom_minimum_size = Vector2(96, 50)
+  b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
   b.button_down.connect(func(): _set_touch(action, true))
   b.button_up.connect(func(): _set_touch(action, false))
   parent.add_child(b)
