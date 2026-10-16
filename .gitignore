@@ -1,0 +1,11 @@
+.godot/
+.import/
+.export/
+android/build/
+android/.gradle/
+*.apk
+*.aab
+*.keystore
+*.jks
+.DS_Store
+Thumbs.db
