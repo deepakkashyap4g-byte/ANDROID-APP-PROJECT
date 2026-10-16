@@ -60,6 +60,7 @@ func _process(delta: float) -> void:
   camera.global_position = camera.global_position.lerp(boat.global_position + Vector3(0, 8, 11), delta * 3.0)
   camera.look_at(boat.global_position + Vector3(0, 0.5, 0), Vector3.UP)
   _check_rescues()
+  _check_delivery()
   _update_hud()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -122,6 +123,9 @@ func _make_house(pos: Vector3, seed_id: int) -> void:
   _box(house, "Door", Vector3(0, -0.35, -1.78), Vector3(0.8, 1.4, 0.08), Color(0.20, 0.10, 0.05))
 
 func _build_boat() -> void:
+  _box(self, "RescueBasePad", Vector3(0, -0.005, 20), Vector3(5.5, 0.12, 5.5), Color(0.95, 0.72, 0.12))
+  _box(self, "RescueBaseInner", Vector3(0, 0.07, 20), Vector3(3.8, 0.08, 3.8), Color(0.16, 0.48, 0.28))
+  _box(self, "BaseBeacon", Vector3(0, 0.8, 20), Vector3(0.35, 1.5, 0.35), Color(1.0, 0.85, 0.2))
   boat = Node3D.new()
   boat.name = "RescueBoat"
   boat.position = Vector3(0, 0.28, 20)
@@ -227,13 +231,18 @@ func _check_rescues() -> void:
       rescued += 1
       status_label.text = "Villager rescued! +100 points"
       if rescued >= RESCUE_TOTAL:
-        _end_game(true)
+        status_label.text = "All villagers aboard! Return to the green rescue base."
       return
+
+func _check_delivery() -> void:
+  if rescued >= RESCUE_TOTAL and boat.global_position.distance_to(Vector3(0, 0.28, 20)) < 4.0:
+    _end_game(true)
 
 func _update_hud() -> void:
   if hud:
     var remaining := maxi(0, int(time_limit - elapsed))
-    hud.text = "INDIAN MONSOON RESCUE  |  Rescued %d/%d  |  Score %d  |  Time %02d:%02d" % [rescued, RESCUE_TOTAL, score, remaining / 60, remaining % 60]
+    var objective := "Return to green base!" if rescued >= RESCUE_TOTAL else "Rescue villagers: %d/%d" % [rescued, RESCUE_TOTAL]
+    hud.text = "MONSOON RESCUE  |  %s  |  Score %d  |  %02d:%02d" % [objective, score, remaining / 60, remaining % 60]
 
 func _end_game(won: bool) -> void:
   ended = true
