@@ -1,0 +1,45 @@
+name: Build and publish Web game
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  export-web:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Export HTML5 game
+        run: |
+          mkdir -p build/web
+          godot --headless --verbose --path . --export-release "Web" build/web/index.html
+          test -f build/web/index.html
+          ls -lah build/web
+      - name: Upload web game
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: export-web
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
